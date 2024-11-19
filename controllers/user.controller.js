@@ -1,16 +1,29 @@
 const User = require("../models/user.model");
 const { CreateError } = require("../utils/errorHandler");
 
-const registerUser = async (req,res,next)=>{
-// register user
-let {name,username,email,password} = req.body;
-  try {
-    await User.create({name,username,email,password});
-    res.send("user Created Sucessfully");
-  }catch(err){
-    next(CreateError(err));
+
+const renderRegister = (req,res)=>{
+    let user = req.user;
+  if(!req.user){
+  res.render("register",{user});
+  }else {
+   res.redirect("/home");
   }
 }
+
+const registerUser = async (req,res,next)=>{
+    let user = req.user;
+if(user){
+    res.redirect('/home');
+}else {
+    // register user
+let {name,username,email,password} = req.body;
+    let user = new User({name,username,email,password});
+    await user.save();
+    res.send("user Created Sucessfully");
+}
+}
+
 const updateUser = async (req,res) =>{
 // update user information
 }
@@ -37,5 +50,5 @@ else {
 }
 
 module.exports = {
-    registerUser,updateUser,deleteUser
+    registerUser,updateUser,deleteUser,renderRegister
 }
